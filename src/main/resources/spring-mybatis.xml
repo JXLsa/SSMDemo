@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:util="http://www.springframework.org/schema/util" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd"> <!-- <context:component-scan base-package="cn.goktech.service"> </context:component-scan>--> <!--排除controller 只处理Service和dao -->
+    <context:component-scan base-package="com.edu.smxy">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!--加载jdbc.properties-->
+    <util:properties location="classpath:jdbc.properties" id="jdbc"></util:properties>
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="#{jdbc.driverName}"></property>
+        <property name="url" value="#{jdbc.url}"></property>
+        <property name="username" value="#{jdbc.username}"></property>
+        <property name="password" value="#{jdbc.password}"></property>
+    </bean>
+    <!--在使用Spring+MyBatis的环境下，我们需要配值一个SqlSessionFactoryBean来充当 SqlSessionFactory-->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean"> <!--dataSource属性是必须指定的，它表示用于连接数据库的数据源-->
+        <property name="dataSource"
+                  ref="dataSource"></property> <!--mapperLocations：它表示我们的Mapper文件存放的位置，当我们的Mapper文件跟 对应的Mapper接口处于同一位置的时候可以不用指定该属性的值（即同包同名）-->
+        <property name="mapperLocations"
+                  value="classpath:mappers/*.xml"></property> <!--plugins：数组类型，用来指定Mybatis的Interceptor-->
+        <property name="plugins">
+            <array> <!-- 传入分页插件的对象pagehelper -->
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props> <!--数据库类型-->
+                            <prop key="helperDialect">mysql</prop> <!--页码超出范围自动修正-->
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean> <!--MapperScannerConfigurer自动扫描 将Mapper接口生成代理注入到Spring-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.edu.smxy.dao"></property>
+    </bean>
+</beans>

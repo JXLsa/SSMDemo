@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?> <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd"> <!-- namespace指定dao路径-->
+<mapper namespace="com.edu.smxy.dao.BookDao"> <!--增 id对应dao中的方法名-->
+<!--    <insert id="add" parameterType="com.edu.smxy.entity.book"> INSERT INTO book_info
+                                                             VALUES (default, #{name}, #{type}) </insert> &lt;!&ndash;查&ndash;&gt;-->
+    <select id="queryList" parameterType="com.edu.smxy.entity.Book" resultType="com.edu.smxy.entity.Book">SELECT * from book_info
+        <where>
+            <if test="book_name!=null and book_name!=''">book_name like concat('%',#{book_name},'%')</if>
+            <if test="content!=null and content!=''">and content=#{content}</if>
+        </where>
+    </select>
+</mapper>
